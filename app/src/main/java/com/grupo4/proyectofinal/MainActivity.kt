@@ -1,12 +1,15 @@
 package com.grupo4.proyectofinal
 
+import android.graphics.Bitmap
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import android.view.WindowManager
+import kotlin.random.Random
 
 class MainActivity : AppCompatActivity(), SensorEventListener {
 
@@ -16,8 +19,12 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        canvasView = CanvasView(this)
+        canvasView = CanvasView(this, this)
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        window.decorView.systemUiVisibility = (
+                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+                View.SYSTEM_UI_FLAG_FULLSCREEN or
+                View.SYSTEM_UI_FLAG_IMMERSIVE)
         setContentView(canvasView)
         sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
@@ -45,8 +52,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                         canvasView.tempPosX = canvasView.posX + 5f
                     }
                 }
-                val leftMargin =  canvasView.centerX - canvasView.sizeX + 50f
-                val rightMargin = canvasView.width - canvasView.centerX + canvasView.sizeX - 50f
+                val leftMargin =  canvasView.centerX - canvasView.sizeX + canvasView.spaceship.width / 2f
+                val rightMargin = canvasView.centerX + canvasView.sizeX - canvasView.spaceship.width / 2f
                 if (canvasView.tempPosX in leftMargin..rightMargin) {
                     canvasView.posX = canvasView.tempPosX
                     canvasView.invalidate()
@@ -61,6 +68,38 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     }
 
     override fun onAccuracyChanged(event: Sensor?, p1: Int) {
+    }
+}
+
+class Asteroid (bmp: Bitmap){
+
+    val posX = (80..1000).random(Random(System.nanoTime())).toFloat()
+    var posY = -100f
+    val bitmap = bmp
+
+    fun move() {
+        posY += 1f
+    }
+
+}
+
+class Asteroids (private val asteroidBitmaps: List<Bitmap>){
+
+    var list = mutableListOf<Asteroid>()
+
+    fun addAsteroid() {
+        val randomIndex = (asteroidBitmaps.indices).random()
+        list.add(Asteroid(asteroidBitmaps[randomIndex]))
+    }
+
+    fun removeAsteroid(asteroid: Asteroid){
+        list.remove(asteroid)
+    }
+
+    fun moveAsteroids() {
+        for (asteroid in list) {
+            asteroid.move()
+        }
     }
 
 }
