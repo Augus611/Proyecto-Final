@@ -7,7 +7,9 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.view.MotionEvent
 import android.view.View
+import android.widget.Space
 import androidx.core.content.res.ResourcesCompat
+import kotlin.math.sqrt
 import kotlin.random.Random
 
 class CanvasView (context: Context, val mainActivity: MainActivity) : View(context){
@@ -33,7 +35,7 @@ class CanvasView (context: Context, val mainActivity: MainActivity) : View(conte
     var posY = 0f
     var start = false
     var firstStart = true
-    var spaceship : Bitmap = Bitmap.createScaledBitmap(
+    var spaceshipBitmap : Bitmap = Bitmap.createScaledBitmap(
         BitmapFactory.decodeResource(resources, R.drawable.spaceship,null),
         128,
         128,
@@ -49,23 +51,28 @@ class CanvasView (context: Context, val mainActivity: MainActivity) : View(conte
     )
     var asteroids = Asteroids(asteroidBitmaps)
     var asteroidDistance = 100
+    var spaceship = Spaceship(spaceshipBitmap)
 
     override fun onDraw(canvas: Canvas?) {
         canvas?.drawPaint(paintBlack)
         centerX = width / 2f
         centerY = height / 2f
-        posY = centerY + sizeY - 100
+        spaceship.posY = centerY + sizeY - 100
         if (firstStart) {
-            posX = centerX
+            spaceship.posX = centerX
             tempPosX = centerX
         }
-        for (asteroid in asteroids.list) {
-            canvas?.drawBitmap(
-                asteroid.bitmap,
-                asteroid.posX,
-                asteroid.posY,
-                paint
-            )
+        try {
+            for (asteroid in asteroids.list) {
+                canvas?.drawBitmap(
+                    asteroid.bitmap,
+                    asteroid.posX - asteroid.bitmap.width / 2,
+                    asteroid.posY - asteroid.bitmap.height / 2,
+                    paint
+                )
+            }
+        } catch (e : Exception) {
+            e.printStackTrace()
         }
         canvas?.drawRect(
             centerX - sizeX,
@@ -78,9 +85,9 @@ class CanvasView (context: Context, val mainActivity: MainActivity) : View(conte
             }
         )
         canvas?.drawBitmap(
-            spaceship,
-            posX - spaceship.width / 2,
-            posY - spaceship.height / 2,
+            spaceship.bitmap,
+            spaceship.posX - spaceship.bitmap.width / 2,
+            spaceship.posY - spaceship.bitmap.height / 2,
             paint
         )
     }
@@ -89,7 +96,7 @@ class CanvasView (context: Context, val mainActivity: MainActivity) : View(conte
         when (event?.action) {
             MotionEvent.ACTION_DOWN -> {
                 if (firstStart) {
-                    createAsteroidsThread()
+                    createGameThread()
                     firstStart = false
                 }
                 start = !start
@@ -99,25 +106,96 @@ class CanvasView (context: Context, val mainActivity: MainActivity) : View(conte
         return super.onTouchEvent(event)
     }
 
-    fun createAsteroidsThread() {
+    fun createGameThread() {
         val thread = Thread(Runnable {
+            val fps : Long = 60
+            val targetTime : Long = 1000/fps
+            var speed = 2f
+            var gameOver = false
             if (asteroids.list.size == 0) {
                 asteroids.addAsteroid()
             }
-            while (true) { //Despues cambiar esto
+            while (!gameOver) {
                 while (start) {
-                    asteroids.moveAsteroids()
-                    if (asteroids.list.last().posY >= asteroidDistance) {
-                        asteroids.addAsteroid()
-                        asteroidDistance = (1..400).random(Random(System.nanoTime()))
+                    updateAsteroidsPosition(speed)
+                    invalidate()
+                    if (detectAsteroidCollision(spaceship, asteroids.list.first())) {
+                        start = false
+                        gameOver = true
                     }
-                    if (asteroids.list.first().posY >= 2000) {
-                        asteroids.removeAsteroid(asteroids.list.first())
+                    try {
+                        Thread.sleep(targetTime)
+                    } catch ( e : Exception) {
+                        e.printStackTrace()
                     }
-                    Thread.sleep(2)
+                    if (speed < 20f) {
+                        speed += 0.001f
+                    }
                 }
             }
         })
         thread.start()
     }
+
+    fun updateAsteroidsPosition(speed : Float) {
+        asteroids.moveAsteroids(speed)
+        if (asteroids.list.last().posY >= asteroidDistance) {
+            asteroids.addAsteroid()
+            asteroidDistance = (1..400).random(Random(System.nanoTime()))
+        }
+        if (asteroids.list.first().posY >= 2000) {
+            asteroids.removeAsteroid(asteroids.list.first())
+        }
+    }
+
+    fun detectAsteroidCollision (spaceship: Spaceship, asteroid: Asteroid): Boolean {
+
+        val collisionArea = spaceship.bitmap.width / 2 + asteroid.bitmap.width / 2
+        val x = spaceship.posX - asteroid.posX
+        val y = spaceship.posY - asteroid.posY
+        val distance = sqrt(x * x + y * y )
+        return distance <= collisionArea
+    }
+}
+
+class Spaceship (spaceshipBitmap: Bitmap){
+
+    var posX = 0f
+    var posY = 0f
+    var bitmap = spaceshipBitmap
+    var speed = 5f
+
+}
+
+
+class Asteroid (asteroidBitmaps: List<Bitmap>){
+
+    val posX = (80..1000).random(Random(System.nanoTime())).toFloat()
+    var posY = -100f
+    val bitmap = asteroidBitmaps[asteroidBitmaps.indices.random()]
+
+    fun move(speed : Float) {
+        posY += speed
+    }
+
+}
+
+class Asteroids (private val asteroidBitmaps: List<Bitmap>){
+
+    var list = mutableListOf<Asteroid>()
+
+    fun addAsteroid() {
+        list.add(Asteroid(asteroidBitmaps))
+    }
+
+    fun removeAsteroid(asteroid: Asteroid){
+        list.remove(asteroid)
+    }
+
+    fun moveAsteroids(speed : Float) {
+        for (asteroid in list) {
+            asteroid.move(speed)
+        }
+    }
+
 }

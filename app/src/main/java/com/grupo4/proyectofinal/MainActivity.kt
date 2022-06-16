@@ -46,21 +46,20 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             if (event?.sensor?.type == Sensor.TYPE_ACCELEROMETER) {
                 when {
                     event.values[0] > 0.5 -> {
-                        canvasView.tempPosX = canvasView.posX - 5f
+                        canvasView.tempPosX = canvasView.spaceship.posX - canvasView.spaceship.speed
                     }
                     event.values[0] < -0.5 -> {
-                        canvasView.tempPosX = canvasView.posX + 5f
+                        canvasView.tempPosX = canvasView.spaceship.posX + canvasView.spaceship.speed
                     }
                 }
-                val leftMargin =  canvasView.centerX - canvasView.sizeX + canvasView.spaceship.width / 2f
-                val rightMargin = canvasView.centerX + canvasView.sizeX - canvasView.spaceship.width / 2f
+                val leftMargin =  canvasView.centerX - canvasView.sizeX + canvasView.spaceship.bitmap.width / 2f
+                val rightMargin = canvasView.centerX + canvasView.sizeX - canvasView.spaceship.bitmap.width / 2f
                 if (canvasView.tempPosX in leftMargin..rightMargin) {
-                    canvasView.posX = canvasView.tempPosX
-                    canvasView.invalidate()
+                    canvasView.spaceship.posX = canvasView.tempPosX
                 } else {
                     when {
-                        canvasView.tempPosX <= leftMargin -> canvasView.posX = leftMargin
-                        canvasView.tempPosX >= rightMargin -> canvasView.posX = rightMargin
+                        canvasView.tempPosX <= leftMargin -> canvasView.spaceship.posX = leftMargin
+                        canvasView.tempPosX >= rightMargin -> canvasView.spaceship.posX = rightMargin
                     }
                 }
             }
@@ -69,37 +68,4 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
     override fun onAccuracyChanged(event: Sensor?, p1: Int) {
     }
-}
-
-class Asteroid (bmp: Bitmap){
-
-    val posX = (80..1000).random(Random(System.nanoTime())).toFloat()
-    var posY = -100f
-    val bitmap = bmp
-
-    fun move() {
-        posY += 1f
-    }
-
-}
-
-class Asteroids (private val asteroidBitmaps: List<Bitmap>){
-
-    var list = mutableListOf<Asteroid>()
-
-    fun addAsteroid() {
-        val randomIndex = (asteroidBitmaps.indices).random()
-        list.add(Asteroid(asteroidBitmaps[randomIndex]))
-    }
-
-    fun removeAsteroid(asteroid: Asteroid){
-        list.remove(asteroid)
-    }
-
-    fun moveAsteroids() {
-        for (asteroid in list) {
-            asteroid.move()
-        }
-    }
-
 }
