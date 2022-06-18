@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#010F1B"
+    tools:context=".Registrar">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="387dp"
+        android:layout_height="635dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" >
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#010F1B">
+
+            <Button
+                android:id="@+id/button3"
+                android:layout_width="203dp"
+                android:layout_height="52dp"
+                android:backgroundTint="#4CAF50"
+                android:fontFamily="@font/pressstart_normal"
+                android:onClick="crearUsuario"
+                android:text="Registrarse"
+                android:textColor="#FFFFFF"
+                android:textSize="12sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/input_passwordValidar"
+                app:layout_constraintVertical_bias="0.448" />
+
+            <EditText
+                android:id="@+id/input_usuarioRegistrar"
+                android:layout_width="286dp"
+                android:layout_height="55dp"
+                android:background="#41AAAAAA"
+                android:ems="10"
+                android:fontFamily="@font/pressstart_normal"
+                android:gravity="center"
+                android:hint="Usuario"
+                android:inputType="textPersonName"
+                android:textColor="#4CAF50"
+                android:textColorHint="#4CAF50"
+                android:textSize="16sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.495"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.215" />
+
+            <EditText
+                android:id="@+id/input_passwordRegistrar"
+                android:layout_width="286dp"
+                android:layout_height="55dp"
+                android:background="#41AAAAAA"
+                android:ems="10"
+                android:fontFamily="@font/pressstart_normal"
+                android:gravity="center"
+                android:hint="Contraseña"
+                android:inputType="textPassword"
+                android:textColor="#4CAF50"
+                android:textColorHint="#4CAF50"
+                android:textSize="16sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.495"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/input_usuarioRegistrar"
+                app:layout_constraintVertical_bias="0.094" />
+
+            <EditText
+                android:id="@+id/input_passwordValidar"
+                android:layout_width="286dp"
+                android:layout_height="55dp"
+                android:background="#41AAAAAA"
+                android:ems="10"
+                android:fontFamily="@font/pressstart_normal"
+                android:gravity="center"
+                android:hint="Contraseña"
+                android:inputType="textPassword"
+                android:textColor="#4CAF50"
+                android:textColorHint="#4CAF50"
+                android:textSize="16sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.495"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/input_passwordRegistrar"
+                app:layout_constraintVertical_bias="0.113" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+</androidx.constraintlayout.widget.ConstraintLayout>
