@@ -1,18 +1,21 @@
 package com.grupo4.proyectofinal
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.view.MotionEvent
 import android.view.View
+import android.widget.Button
 import android.widget.Space
+import androidx.core.content.ContextCompat.startActivity
 import androidx.core.content.res.ResourcesCompat
 import kotlin.math.sqrt
 import kotlin.random.Random
 
-class CanvasView (context: Context, val mainActivity: MainActivity) : View(context){
+class CanvasView(context: Context) : View(context){
 
     private val colorWhite = ResourcesCompat.getColor(resources, R.color.white, null)
     private val paintWhite = Paint().apply {
@@ -52,6 +55,7 @@ class CanvasView (context: Context, val mainActivity: MainActivity) : View(conte
     var asteroids = Asteroids(asteroidBitmaps)
     var asteroidDistance = 100
     var spaceship = Spaceship(spaceshipBitmap)
+    var buttonLoginPosition = arrayOf(0f, 0f, 32f)
 
     override fun onDraw(canvas: Canvas?) {
         canvas?.drawPaint(paintBlack)
@@ -62,6 +66,8 @@ class CanvasView (context: Context, val mainActivity: MainActivity) : View(conte
             spaceship.posX = centerX
             tempPosX = centerX
         }
+        buttonLoginPosition[0] = centerX - sizeX + 40
+        buttonLoginPosition[1] = centerY - sizeY - 50
         try {
             for (asteroid in asteroids.list) {
                 canvas?.drawBitmap(
@@ -74,6 +80,12 @@ class CanvasView (context: Context, val mainActivity: MainActivity) : View(conte
         } catch (e : Exception) {
             e.printStackTrace()
         }
+        canvas?.drawCircle( //cambiar por un boton
+            buttonLoginPosition[0],
+            buttonLoginPosition[1],
+            buttonLoginPosition[2],
+            paintWhite
+        )
         canvas?.drawRect(
             centerX - sizeX,
             centerY - sizeY,

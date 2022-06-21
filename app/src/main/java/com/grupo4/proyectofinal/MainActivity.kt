@@ -1,15 +1,16 @@
 package com.grupo4.proyectofinal
 
-import android.graphics.Bitmap
+import android.content.Intent
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
-import kotlin.random.Random
+import kotlin.math.sqrt
 
 class MainActivity : AppCompatActivity(), SensorEventListener {
 
@@ -19,7 +20,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        canvasView = CanvasView(this, this)
+        canvasView = CanvasView(this)
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         window.decorView.systemUiVisibility = (
                 View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
@@ -64,6 +65,23 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                 }
             }
         }
+    }
+
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        when (event?.action) {
+            MotionEvent.ACTION_UP -> {
+                val x = event.x - canvasView.buttonLoginPosition[0]
+                val y = event.y - canvasView.buttonLoginPosition[1]
+                val distance = sqrt(x * x + y * y)
+                if (distance <= canvasView.buttonLoginPosition[2]) {
+                    startActivity(
+                        Intent(this, Activity_Login::class.java)
+                    )
+                }
+                return true
+            }
+        }
+        return super.onTouchEvent(event)
     }
 
     override fun onAccuracyChanged(event: Sensor?, p1: Int) {
