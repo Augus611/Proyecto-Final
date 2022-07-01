@@ -1,16 +1,9 @@
 package com.grupo4.proyectofinal
 
 import android.content.Context
-import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Canvas
-import android.graphics.Paint
+import android.graphics.*
 import android.view.MotionEvent
 import android.view.View
-import android.widget.Button
-import android.widget.Space
-import androidx.core.content.ContextCompat.startActivity
 import androidx.core.content.res.ResourcesCompat
 import kotlin.math.sqrt
 import kotlin.random.Random
@@ -28,7 +21,14 @@ class CanvasView(context: Context) : View(context){
         color = colorBlack
         style = Paint.Style.FILL
     }
-    private val paint = Paint()
+    private val colorRed = ResourcesCompat.getColor(resources, R.color.red, null)
+    private val paintMargins = Paint().apply {
+        color = colorBlack
+        style = Paint.Style.FILL
+    }
+    private val paint = Paint().apply {
+        isFilterBitmap = false
+    }
     var centerX = 0f
     var centerY = 0f
     var sizeX = 500f
@@ -52,10 +52,18 @@ class CanvasView(context: Context) : View(context){
             true
         )
     )
+    val pauseBitmap : Bitmap = Bitmap.createScaledBitmap(
+        BitmapFactory.decodeResource(resources, R.drawable.pause, null),
+        256,
+        256,
+        false
+    )
     var asteroids = Asteroids(asteroidBitmaps)
     var asteroidDistance = 100
     var spaceship = Spaceship(spaceshipBitmap)
-    var buttonLoginPosition = arrayOf(0f, 0f, 32f)
+    var puntajeActual = 0
+    var sizeChanged = false
+    var gameOver = false
 
     override fun onDraw(canvas: Canvas?) {
         canvas?.drawPaint(paintBlack)
@@ -66,8 +74,6 @@ class CanvasView(context: Context) : View(context){
             spaceship.posX = centerX
             tempPosX = centerX
         }
-        buttonLoginPosition[0] = centerX - sizeX + 40
-        buttonLoginPosition[1] = centerY - sizeY - 50
         try {
             for (asteroid in asteroids.list) {
                 canvas?.drawBitmap(
@@ -80,12 +86,40 @@ class CanvasView(context: Context) : View(context){
         } catch (e : Exception) {
             e.printStackTrace()
         }
-        canvas?.drawCircle( //cambiar por un boton
-            buttonLoginPosition[0],
-            buttonLoginPosition[1],
-            buttonLoginPosition[2],
-            paintWhite
+        //Márgenes
+        //Izquierdo
+        canvas?.drawRect(
+            0f,
+            0f,
+            centerX - sizeX,
+            height.toFloat(),
+            paintMargins
         )
+        //Superior
+        canvas?.drawRect(
+            0f,
+            0f,
+            width.toFloat(),
+            centerY - sizeY,
+            paintMargins
+        )
+        //Derecho
+        canvas?.drawRect(
+            centerX + sizeX,
+            0f,
+            width.toFloat(),
+            height.toFloat(),
+            paintMargins
+        )
+        //Inferior
+        canvas?.drawRect(
+            0f,
+            centerY + sizeY,
+            width.toFloat(),
+            height.toFloat(),
+            paintMargins
+        )
+        //Marco blanco
         canvas?.drawRect(
             centerX - sizeX,
             centerY - sizeY,
@@ -102,16 +136,33 @@ class CanvasView(context: Context) : View(context){
             spaceship.posY - spaceship.bitmap.height / 2,
             paint
         )
+        if (!firstStart and !start and !gameOver) {
+            canvas?.drawBitmap(
+                pauseBitmap,
+                centerX - pauseBitmap.width / 2,
+                centerY - pauseBitmap.height / 2,
+                paint
+            )
+        }
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         when (event?.action) {
             MotionEvent.ACTION_DOWN -> {
+                if (gameOver) {
+                    asteroids.list.clear()
+                    firstStart = true
+                    gameOver = false
+                    invalidate()
+                    start = false
+                }
                 if (firstStart) {
+                    paintMargins.color = colorBlack
                     createGameThread()
                     firstStart = false
                 }
                 start = !start
+                invalidate()
                 return true
             }
         }
@@ -123,7 +174,6 @@ class CanvasView(context: Context) : View(context){
             val fps : Long = 60
             val targetTime : Long = 1000/fps
             var speed = 2f
-            var gameOver = false
             if (asteroids.list.size == 0) {
                 asteroids.addAsteroid()
             }
@@ -131,9 +181,13 @@ class CanvasView(context: Context) : View(context){
                 while (start) {
                     updateAsteroidsPosition(speed)
                     invalidate()
-                    if (detectAsteroidCollision(spaceship, asteroids.list.first())) {
-                        start = false
-                        gameOver = true
+                    for (asteroid in asteroids.list) {
+                        if (detectAsteroidCollision(spaceship, asteroid)) {
+                            start = false
+                            gameOver = true
+                            paintMargins.color = colorRed
+                            invalidate()
+                        }
                     }
                     try {
                         Thread.sleep(targetTime)
@@ -168,6 +222,11 @@ class CanvasView(context: Context) : View(context){
         val distance = sqrt(x * x + y * y )
         return distance <= collisionArea
     }
+
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
+        sizeChanged = true
+    }
 }
 
 class Spaceship (spaceshipBitmap: Bitmap){
@@ -183,7 +242,7 @@ class Spaceship (spaceshipBitmap: Bitmap){
 class Asteroid (asteroidBitmaps: List<Bitmap>){
 
     val posX = (80..1000).random(Random(System.nanoTime())).toFloat()
-    var posY = -100f
+    var posY = 0f
     val bitmap = asteroidBitmaps[asteroidBitmaps.indices.random()]
 
     fun move(speed : Float) {

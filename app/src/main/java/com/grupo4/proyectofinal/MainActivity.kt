@@ -9,24 +9,46 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewGroup
 import android.view.WindowManager
+import android.widget.Button
+import android.widget.ImageButton
+import android.widget.RelativeLayout
 import kotlin.math.sqrt
 
 class MainActivity : AppCompatActivity(), SensorEventListener {
 
     private lateinit var canvasView : CanvasView
+    private lateinit var layout : RelativeLayout
     lateinit var sensorManager : SensorManager
     lateinit var accelerometer : Sensor
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         canvasView = CanvasView(this)
+        layout = RelativeLayout(this)
+        var params = RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        params.addRule(RelativeLayout.CENTER_IN_PARENT)
+        layout.addView(
+            canvasView,
+            params
+        )
+        val loginButton = ImageButton(this)
+        loginButton.setImageResource(R.drawable.spaceship)
+        loginButton.setOnClickListener{
+            startActivity(
+                Intent(this, Activity_Login::class.java)
+            )
+        }
+        params = RelativeLayout.LayoutParams(100, 100)
+        params.setMargins(30, windowManager.defaultDisplay.height/2 - canvasView.sizeY.toInt() - 100, 0, 0)
+        layout.addView(
+            loginButton,
+            params
+        )
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        window.decorView.systemUiVisibility = (
-                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
-                View.SYSTEM_UI_FLAG_FULLSCREEN or
-                View.SYSTEM_UI_FLAG_IMMERSIVE)
-        setContentView(canvasView)
+        setFullscreen()
+        setContentView(layout)
         sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
         sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME, SensorManager.SENSOR_DELAY_UI)
@@ -34,6 +56,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
     override fun onResume() {
         super.onResume()
+        setFullscreen()
         sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME, SensorManager.SENSOR_DELAY_UI)
     }
 
@@ -67,21 +90,24 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         }
     }
 
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        setFullscreen()
+    }
+
     override fun onTouchEvent(event: MotionEvent?): Boolean {
-        when (event?.action) {
-            MotionEvent.ACTION_UP -> {
-                val x = event.x - canvasView.buttonLoginPosition[0]
-                val y = event.y - canvasView.buttonLoginPosition[1]
-                val distance = sqrt(x * x + y * y)
-                if (distance <= canvasView.buttonLoginPosition[2]) {
-                    startActivity(
-                        Intent(this, Activity_Login::class.java)
-                    )
-                }
-                return true
-            }
+        if (canvasView.sizeChanged) {
+            setFullscreen()
+            canvasView.sizeChanged = false
         }
         return super.onTouchEvent(event)
+    }
+
+    fun setFullscreen() {
+        window.decorView.systemUiVisibility = (
+                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+                        View.SYSTEM_UI_FLAG_FULLSCREEN or
+                        View.SYSTEM_UI_FLAG_IMMERSIVE)
     }
 
     override fun onAccuracyChanged(event: Sensor?, p1: Int) {
