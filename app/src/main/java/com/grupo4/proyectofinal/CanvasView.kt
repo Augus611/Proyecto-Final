@@ -187,7 +187,9 @@ class CanvasView(context: Context, val mainActivity: MainActivity) : View(contex
                     updateAsteroidsPosition(speed)
                     invalidate()
                     currentScore += 0.05f
-                    mainActivity.currentScoreTextView.text = currentScore.toInt().toString()
+//                    mainActivity.runOnUiThread{
+                        mainActivity.currentScoreTextView.text = currentScore.toInt().toString()
+//                    }
                     for (asteroid in asteroids.list) {
                         if (detectAsteroidCollision(spaceship, asteroid)) {
                             start = false

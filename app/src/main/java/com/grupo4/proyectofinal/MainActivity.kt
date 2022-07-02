@@ -1,6 +1,5 @@
 package com.grupo4.proyectofinal
 
-import android.content.Context
 import android.content.Intent
 import android.hardware.Sensor
 import android.hardware.SensorEvent
@@ -9,19 +8,16 @@ import android.hardware.SensorManager
 import android.os.*
 import androidx.appcompat.app.AppCompatActivity
 import android.view.*
-import android.widget.Button
 import android.widget.ImageButton
+import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
-import androidx.annotation.RequiresApi
-import androidx.core.content.getSystemService
-import com.google.android.material.resources.TextAppearance
-import kotlin.math.sqrt
+import androidx.appcompat.content.res.AppCompatResources
 
 class MainActivity : AppCompatActivity(), SensorEventListener {
 
     private lateinit var canvasView : CanvasView
-    private lateinit var layout : RelativeLayout
+    private lateinit var relativeLayout : RelativeLayout
     private lateinit var sensorManager : SensorManager
     private lateinit var accelerometer : Sensor
     lateinit var currentScoreTextView : TextView
@@ -29,15 +25,17 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         canvasView = CanvasView(this, this)
-        layout = RelativeLayout(this)
+        relativeLayout = RelativeLayout(this)
         var params = RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
         params.addRule(RelativeLayout.CENTER_IN_PARENT)
-        layout.addView(
+        relativeLayout.addView(
             canvasView,
             params
         )
+        val newid = View.generateViewId()
         currentScoreTextView = TextView(this)
         currentScoreTextView.apply {
+            id = newid
             text = canvasView.currentScore.toInt().toString()
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 typeface = resources.getFont(R.font.pressstart_normal)
@@ -46,14 +44,15 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             gravity = Gravity.CENTER
             textSize = 32f
         }
-        params = RelativeLayout.LayoutParams(500, 100)
+        params = RelativeLayout.LayoutParams(700, 90)
         params.addRule(RelativeLayout.CENTER_HORIZONTAL)
         params.setMargins(0, windowManager.defaultDisplay.height/2 - canvasView.sizeY.toInt() - 80, 0, 0)
-        layout.addView(
+        relativeLayout.addView(
             currentScoreTextView,
             params
         )
         val loginButton = ImageButton(this)
+        loginButton.background = AppCompatResources.getDrawable(this, R.drawable.round_button)
         loginButton.setImageResource(R.drawable.spaceship)
         loginButton.setOnClickListener{
             startActivity(
@@ -61,14 +60,26 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             )
         }
         params = RelativeLayout.LayoutParams(100, 100)
-        params.setMargins(30, windowManager.defaultDisplay.height/2 - canvasView.sizeY.toInt() - 100, 0, 0)
-        layout.addView(
+        params.addRule(RelativeLayout.LEFT_OF, currentScoreTextView.id)
+        params.addRule(RelativeLayout.ALIGN_TOP, currentScoreTextView.id)
+        params.addRule(RelativeLayout.ALIGN_BOTTOM, currentScoreTextView.id)
+        relativeLayout.addView(
             loginButton,
+            params
+        )
+        val configButton = ImageButton(this)
+        configButton.background = AppCompatResources.getDrawable(this, R.drawable.round_button)
+        params = RelativeLayout.LayoutParams(100, 100)
+        params.addRule(RelativeLayout.RIGHT_OF, currentScoreTextView.id)
+        params.addRule(RelativeLayout.ALIGN_TOP, currentScoreTextView.id)
+        params.addRule(RelativeLayout.ALIGN_BOTTOM, currentScoreTextView.id)
+        relativeLayout.addView(
+            configButton,
             params
         )
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         setFullscreen()
-        setContentView(layout)
+        setContentView(relativeLayout)
         sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
         sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME, SensorManager.SENSOR_DELAY_UI)
