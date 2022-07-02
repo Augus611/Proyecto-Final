@@ -11,7 +11,7 @@ import androidx.core.content.res.ResourcesCompat
 import kotlin.math.sqrt
 import kotlin.random.Random
 
-class CanvasView(context: Context) : View(context){
+class CanvasView(context: Context, val mainActivity: MainActivity) : View(context){
 
     private val colorWhite = ResourcesCompat.getColor(resources, R.color.white, null)
     private val paintWhite = Paint().apply {
@@ -187,6 +187,7 @@ class CanvasView(context: Context) : View(context){
                     updateAsteroidsPosition(speed)
                     invalidate()
                     currentScore += 0.05f
+                    mainActivity.currentScoreTextView.text = currentScore.toInt().toString()
                     for (asteroid in asteroids.list) {
                         if (detectAsteroidCollision(spaceship, asteroid)) {
                             start = false

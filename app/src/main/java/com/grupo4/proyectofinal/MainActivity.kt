@@ -24,11 +24,11 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private lateinit var layout : RelativeLayout
     private lateinit var sensorManager : SensorManager
     private lateinit var accelerometer : Sensor
-    private lateinit var currentScoreTextView : TextView
+    lateinit var currentScoreTextView : TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        canvasView = CanvasView(this)
+        canvasView = CanvasView(this, this)
         layout = RelativeLayout(this)
         var params = RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
         params.addRule(RelativeLayout.CENTER_IN_PARENT)
@@ -46,7 +46,6 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             gravity = Gravity.CENTER
             textSize = 32f
         }
-        createScoreThread()
         params = RelativeLayout.LayoutParams(500, 100)
         params.addRule(RelativeLayout.CENTER_HORIZONTAL)
         params.setMargins(0, windowManager.defaultDisplay.height/2 - canvasView.sizeY.toInt() - 80, 0, 0)
@@ -130,23 +129,6 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                 View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
                         View.SYSTEM_UI_FLAG_FULLSCREEN or
                         View.SYSTEM_UI_FLAG_IMMERSIVE)
-    }
-
-    fun createScoreThread() {
-        val thread = Thread {
-            while (true) {
-                runOnUiThread {
-                    currentScoreTextView.text = canvasView.currentScore.toInt().toString()
-                }
-                try {
-                    Thread.sleep(10)
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-            }
-            //guardar puntaje maximo
-        }
-        thread.start()
     }
 
     override fun onAccuracyChanged(event: Sensor?, p1: Int) {
