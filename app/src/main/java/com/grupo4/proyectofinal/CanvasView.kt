@@ -2,6 +2,9 @@ package com.grupo4.proyectofinal
 
 import android.content.Context
 import android.graphics.*
+import android.os.Build
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.view.MotionEvent
 import android.view.View
 import androidx.core.content.res.ResourcesCompat
@@ -61,9 +64,9 @@ class CanvasView(context: Context) : View(context){
     var asteroids = Asteroids(asteroidBitmaps)
     var asteroidDistance = 100
     var spaceship = Spaceship(spaceshipBitmap)
-    var puntajeActual = 0
     var sizeChanged = false
     var gameOver = false
+    var currentScore = 0f
 
     override fun onDraw(canvas: Canvas?) {
         canvas?.drawPaint(paintBlack)
@@ -171,6 +174,8 @@ class CanvasView(context: Context) : View(context){
 
     fun createGameThread() {
         val thread = Thread(Runnable {
+            currentScore = 0f
+            tempPosX = centerX
             val fps : Long = 60
             val targetTime : Long = 1000/fps
             var speed = 2f
@@ -181,10 +186,12 @@ class CanvasView(context: Context) : View(context){
                 while (start) {
                     updateAsteroidsPosition(speed)
                     invalidate()
+                    currentScore += 0.05f
                     for (asteroid in asteroids.list) {
                         if (detectAsteroidCollision(spaceship, asteroid)) {
                             start = false
                             gameOver = true
+                            vibrate()
                             paintMargins.color = colorRed
                             invalidate()
                         }
@@ -226,6 +233,15 @@ class CanvasView(context: Context) : View(context){
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
         sizeChanged = true
+    }
+
+    private fun vibrate() {
+        val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            vibrator.vibrate(VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE))
+        } else {
+            vibrator.vibrate(50)
+        }
     }
 }
 

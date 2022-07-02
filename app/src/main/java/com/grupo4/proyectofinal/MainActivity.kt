@@ -1,27 +1,30 @@
 package com.grupo4.proyectofinal
 
+import android.content.Context
 import android.content.Intent
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.os.*
 import androidx.appcompat.app.AppCompatActivity
-import android.os.Bundle
-import android.view.MotionEvent
-import android.view.View
-import android.view.ViewGroup
-import android.view.WindowManager
+import android.view.*
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.RelativeLayout
+import android.widget.TextView
+import androidx.annotation.RequiresApi
+import androidx.core.content.getSystemService
+import com.google.android.material.resources.TextAppearance
 import kotlin.math.sqrt
 
 class MainActivity : AppCompatActivity(), SensorEventListener {
 
     private lateinit var canvasView : CanvasView
     private lateinit var layout : RelativeLayout
-    lateinit var sensorManager : SensorManager
-    lateinit var accelerometer : Sensor
+    private lateinit var sensorManager : SensorManager
+    private lateinit var accelerometer : Sensor
+    private lateinit var currentScoreTextView : TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,6 +34,24 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         params.addRule(RelativeLayout.CENTER_IN_PARENT)
         layout.addView(
             canvasView,
+            params
+        )
+        currentScoreTextView = TextView(this)
+        currentScoreTextView.apply {
+            text = canvasView.currentScore.toInt().toString()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                typeface = resources.getFont(R.font.pressstart_normal)
+            }
+            setTextColor(resources.getColor(R.color.white))
+            gravity = Gravity.CENTER
+            textSize = 32f
+        }
+        createScoreThread()
+        params = RelativeLayout.LayoutParams(500, 100)
+        params.addRule(RelativeLayout.CENTER_HORIZONTAL)
+        params.setMargins(0, windowManager.defaultDisplay.height/2 - canvasView.sizeY.toInt() - 80, 0, 0)
+        layout.addView(
+            currentScoreTextView,
             params
         )
         val loginButton = ImageButton(this)
@@ -61,6 +82,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     }
 
     override fun onPause() {
+        canvasView.start = false
         sensorManager.unregisterListener(this)
         super.onPause()
     }
@@ -108,6 +130,23 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                 View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
                         View.SYSTEM_UI_FLAG_FULLSCREEN or
                         View.SYSTEM_UI_FLAG_IMMERSIVE)
+    }
+
+    fun createScoreThread() {
+        val thread = Thread {
+            while (true) {
+                runOnUiThread {
+                    currentScoreTextView.text = canvasView.currentScore.toInt().toString()
+                }
+                try {
+                    Thread.sleep(10)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+            //guardar puntaje maximo
+        }
+        thread.start()
     }
 
     override fun onAccuracyChanged(event: Sensor?, p1: Int) {
