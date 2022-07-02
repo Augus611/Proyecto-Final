@@ -32,6 +32,7 @@ class CanvasView(context: Context, val mainActivity: MainActivity) : View(contex
     private val paint = Paint().apply {
         isFilterBitmap = false
     }
+
     var centerX = 0f
     var centerY = 0f
     var sizeX = 500f
@@ -287,5 +288,4 @@ class Asteroids (private val asteroidBitmaps: List<Bitmap>){
             asteroid.move(speed)
         }
     }
-
 }

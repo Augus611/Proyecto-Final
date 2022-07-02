@@ -126,6 +126,38 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         super.onWindowFocusChanged(hasFocus)
         setFullscreen()
     }
+}
+
+class Asteroid (bmp: Bitmap){
+
+    val posX = (80..1000).random(Random(System.nanoTime())).toFloat()
+    var posY = -100f
+    val bitmap = bmp
+
+    fun move() {
+        posY += 1f
+    }
+
+}
+
+class Asteroids (private val asteroidBitmaps: List<Bitmap>){
+
+    var list = mutableListOf<Asteroid>()
+
+    fun addAsteroid() {
+        val randomIndex = (asteroidBitmaps.indices).random()
+        list.add(Asteroid(asteroidBitmaps[randomIndex]))
+    }
+
+    fun removeAsteroid(asteroid: Asteroid){
+        list.remove(asteroid)
+    }
+
+    fun moveAsteroids() {
+        for (asteroid in list) {
+            asteroid.move()
+        }
+    }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         if (canvasView.sizeChanged) {
