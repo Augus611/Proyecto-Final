@@ -98,6 +98,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
     override fun onSensorChanged(event: SensorEvent?) {
         if (canvasView.start) {
+            currentScoreTextView.text = canvasView.currentScore.toInt().toString()
             if (event?.sensor?.type == Sensor.TYPE_ACCELEROMETER) {
                 when {
                     event.values[0] > 0.5 -> {
