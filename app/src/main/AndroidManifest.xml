@@ -16,11 +16,16 @@
         android:theme="@style/Theme.ProyectoFinal"
         tools:targetApi="31">
         <activity
+            android:name=".PuntajesMaximos"
+            android:exported="false"
+            android:label="@string/title_activity_puntajes_maximos"
+            android:theme="@style/Theme.ProyectoFinal.NoActionBar" />
+        <activity
             android:name=".Registrar"
             android:exported="false" />
         <activity
             android:name=".Activity_Login"
-            android:exported="false"/>
+            android:exported="false" />
         <activity
             android:name=".MainActivity"
             android:exported="true"

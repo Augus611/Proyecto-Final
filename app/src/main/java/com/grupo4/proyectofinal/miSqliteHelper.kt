@@ -40,4 +40,17 @@ class miSqliteHelper(context: Context):SQLiteOpenHelper(context, "usuarios.db", 
             null
         }
     }
+
+    fun ActualizarDato(nombre: String, puntuacionMaxima: Int){
+
+        val arg = arrayOf(nombre.toString())
+
+        val datos = ContentValues()
+        datos.put("puntuacionMaxima", puntuacionMaxima)
+
+        val db = this.writableDatabase
+        db.update("usuarios", datos,"nombre = ?", arg )
+        db.close()
+    }
+
 }

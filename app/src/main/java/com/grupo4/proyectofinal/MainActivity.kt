@@ -8,9 +8,7 @@ import android.hardware.SensorManager
 import android.os.*
 import androidx.appcompat.app.AppCompatActivity
 import android.view.*
-import android.widget.ImageButton
-import android.widget.RelativeLayout
-import android.widget.TextView
+import android.widget.*
 import androidx.appcompat.content.res.AppCompatResources
 
 class MainActivity : AppCompatActivity(), SensorEventListener {
@@ -20,6 +18,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private lateinit var sensorManager : SensorManager
     private lateinit var accelerometer : Sensor
     lateinit var currentScoreTextView : TextView
+    lateinit var UsuariosDBHelper: miSqliteHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -82,6 +81,9 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
         sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME, SensorManager.SENSOR_DELAY_UI)
+
+        UsuariosDBHelper = miSqliteHelper(this)
+
     }
 
     override fun onResume() {
@@ -145,4 +147,27 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
     override fun onAccuracyChanged(event: Sensor?, p1: Int) {
     }
+
+    fun ModificarPuntaje(Score: Int){
+
+        val bundle = intent.extras
+        val UsuarioNombre = bundle?.getString("Usuario").toString()
+        val resultado = UsuariosDBHelper.searchUsuario(UsuarioNombre)
+
+        val Puntuacion = Score
+        val PuntuacionMaxActual = resultado?.elementAt(2)!!.toInt()
+
+        if(UsuarioNombre.isNotBlank() && PuntuacionMaxActual.toString().isNotBlank()){
+
+            if ( Puntuacion > PuntuacionMaxActual ){
+                UsuariosDBHelper.ActualizarDato(UsuarioNombre, PuntuacionMaxActual.toInt())
+            }
+
+            Toast.makeText(this, "Nuevo puntaje maximo", Toast.LENGTH_LONG).show()
+        }else{
+            Toast.makeText(this, "No se pudo actualizar exitosamente", Toast.LENGTH_LONG).show()
+        }
+    }
+
+
 }
