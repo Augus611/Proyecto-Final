@@ -9,7 +9,6 @@ import android.os.*
 import androidx.appcompat.app.AppCompatActivity
 import android.view.*
 import android.widget.ImageButton
-import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
@@ -126,38 +125,6 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         super.onWindowFocusChanged(hasFocus)
         setFullscreen()
     }
-}
-
-class Asteroid (bmp: Bitmap){
-
-    val posX = (80..1000).random(Random(System.nanoTime())).toFloat()
-    var posY = -100f
-    val bitmap = bmp
-
-    fun move() {
-        posY += 1f
-    }
-
-}
-
-class Asteroids (private val asteroidBitmaps: List<Bitmap>){
-
-    var list = mutableListOf<Asteroid>()
-
-    fun addAsteroid() {
-        val randomIndex = (asteroidBitmaps.indices).random()
-        list.add(Asteroid(asteroidBitmaps[randomIndex]))
-    }
-
-    fun removeAsteroid(asteroid: Asteroid){
-        list.remove(asteroid)
-    }
-
-    fun moveAsteroids() {
-        for (asteroid in list) {
-            asteroid.move()
-        }
-    }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         if (canvasView.sizeChanged) {
@@ -168,10 +135,12 @@ class Asteroids (private val asteroidBitmaps: List<Bitmap>){
     }
 
     fun setFullscreen() {
-        window.decorView.systemUiVisibility = (
-                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
-                        View.SYSTEM_UI_FLAG_FULLSCREEN or
-                        View.SYSTEM_UI_FLAG_IMMERSIVE)
+        window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_FULLSCREEN)
     }
 
     override fun onAccuracyChanged(event: Sensor?, p1: Int) {
