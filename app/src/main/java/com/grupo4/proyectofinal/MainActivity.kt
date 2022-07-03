@@ -19,6 +19,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private lateinit var accelerometer : Sensor
     lateinit var currentScoreTextView : TextView
     lateinit var UsuariosDBHelper: miSqliteHelper
+    var usuario : String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,8 +54,9 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         loginButton.background = AppCompatResources.getDrawable(this, R.drawable.round_button)
         loginButton.setImageResource(R.drawable.spaceship)
         loginButton.setOnClickListener{
-            startActivity(
-                Intent(this, Activity_Login::class.java)
+            startActivityForResult(
+                Intent(this, Activity_Login::class.java),
+                1
             )
         }
         params = RelativeLayout.LayoutParams(100, 100)
@@ -65,14 +67,19 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             loginButton,
             params
         )
-        val configButton = ImageButton(this)
-        configButton.background = AppCompatResources.getDrawable(this, R.drawable.round_button)
+        val highscoreButton = ImageButton(this)
+        highscoreButton.background = AppCompatResources.getDrawable(this, R.drawable.round_button)
+        highscoreButton.setOnClickListener{
+            startActivity(
+                Intent(this, PuntajesMaximos::class.java).putExtra("Usuario", usuario)
+            )
+        }
         params = RelativeLayout.LayoutParams(100, 100)
         params.addRule(RelativeLayout.RIGHT_OF, currentScoreTextView.id)
         params.addRule(RelativeLayout.ALIGN_TOP, currentScoreTextView.id)
         params.addRule(RelativeLayout.ALIGN_BOTTOM, currentScoreTextView.id)
         relativeLayout.addView(
-            configButton,
+            highscoreButton,
             params
         )
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -100,6 +107,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
     override fun onSensorChanged(event: SensorEvent?) {
         if (canvasView.start) {
+            currentScoreTextView.text = canvasView.currentScore.toInt().toString()
             if (event?.sensor?.type == Sensor.TYPE_ACCELEROMETER) {
                 when {
                     event.values[0] > 0.5 -> {
@@ -148,24 +156,29 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     override fun onAccuracyChanged(event: Sensor?, p1: Int) {
     }
 
-    fun ModificarPuntaje(Score: Int){
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
 
-        val bundle = intent.extras
-        val UsuarioNombre = bundle?.getString("Usuario").toString()
-        val resultado = UsuariosDBHelper.searchUsuario(UsuarioNombre)
-
-        val Puntuacion = Score
-        val PuntuacionMaxActual = resultado?.elementAt(2)!!.toInt()
-
-        if(UsuarioNombre.isNotBlank() && PuntuacionMaxActual.toString().isNotBlank()){
-
-            if ( Puntuacion > PuntuacionMaxActual ){
-                UsuariosDBHelper.ActualizarDato(UsuarioNombre, PuntuacionMaxActual.toInt())
+        if (requestCode == 1) {
+            usuario = data?.getStringExtra("Usuario")
+            if (canvasView.gameOver) {
+                modificarPuntaje(canvasView.currentScore.toInt())
             }
+        }
+    }
 
-            Toast.makeText(this, "Nuevo puntaje maximo", Toast.LENGTH_LONG).show()
-        }else{
-            Toast.makeText(this, "No se pudo actualizar exitosamente", Toast.LENGTH_LONG).show()
+    fun modificarPuntaje(score: Int){
+
+        if (usuario != null) {
+            val resultado = UsuariosDBHelper.searchUsuario(usuario!!)
+            val Puntuacion = score
+            val PuntuacionMaxActual = resultado?.elementAt(2)!!.toInt()
+
+            if(PuntuacionMaxActual.toString().isNotBlank()){
+                if ( Puntuacion > PuntuacionMaxActual ){
+                    UsuariosDBHelper.ActualizarDato(usuario!!, score)
+                }
+            }
         }
     }
 

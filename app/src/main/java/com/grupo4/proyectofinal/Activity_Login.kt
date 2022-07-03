@@ -45,9 +45,10 @@ class Activity_Login : AppCompatActivity() {
                     inputUsuario.text.clear()
                     inputPass.text.clear()
 
-                    val intent = Intent(this, MainActivity::class.java)
-                    intent.putExtra("Usuario", usuario)
-                    startActivity(intent)
+                    val intentUsuario = Intent()
+                    intentUsuario.putExtra("Usuario", usuario)
+                    setResult(1, intentUsuario)
+                    finish()
                 }else{
                     Toast.makeText(this, "Datos incorrectos", Toast.LENGTH_LONG).show()
                 }

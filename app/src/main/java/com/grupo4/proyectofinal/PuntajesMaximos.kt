@@ -7,25 +7,32 @@ import android.widget.TextView
 
 class PuntajesMaximos : AppCompatActivity() {
 
-    lateinit var UsuariosDBHelper: miSqliteHelper
+    lateinit var usuariosDBHelper: miSqliteHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_puntajes_maximos)
 
-        UsuariosDBHelper = miSqliteHelper(this)
-        mostrarPuntaje()
+        usuariosDBHelper = miSqliteHelper(this)
+        mostrarPuntajes()
 
     }
 
-    fun mostrarPuntaje(){
+    fun mostrarPuntajes(){
         val nombreUsuario = findViewById<TextView>(R.id.textView3)
         val puntaje = findViewById<TextView>(R.id.textView4)
-
-        val resultado = UsuariosDBHelper.searchUsuario(usuario)
-
-        nombreUsuario.text = resultado?.elementAt(0)
-        puntaje.text = resultado?.elementAt(2)
+        val puntuaciones = usuariosDBHelper.getPuntuaciones()
+        if (puntuaciones.isNotEmpty()) {
+            for (usuario in puntuaciones) {
+                if (usuario.isNotEmpty()) {
+                    val prevName = nombreUsuario.text
+                    val newName = prevName.toString() + "\n" + usuario[0]
+                    nombreUsuario.text = newName
+                    val prevScore = puntaje.text
+                    val newScore = prevScore.toString() + "\n" + usuario[1]
+                    puntaje.text = newScore
+                }
+            }
+        }
     }
-
 }

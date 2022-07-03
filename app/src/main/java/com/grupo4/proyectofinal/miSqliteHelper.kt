@@ -53,4 +53,15 @@ class miSqliteHelper(context: Context):SQLiteOpenHelper(context, "usuarios.db", 
         db.close()
     }
 
+    fun getPuntuaciones():MutableList<List<String>> {
+        val db = this.readableDatabase
+        val cursor = db.rawQuery("SELECT nombre, puntuacionMaxima FROM usuarios ORDER BY puntuacionMaxima DESC", null)
+        val lista = mutableListOf(emptyList<String>())
+        while (cursor.moveToNext()) {
+            val fila = listOf(cursor.getString(0), cursor.getString(1))
+            lista.add(fila)
+        }
+        return lista
+    }
+
 }

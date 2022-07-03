@@ -40,6 +40,7 @@ class Registrar : AppCompatActivity() {
                     inputPassValidar.text.clear()
 
                     Toast.makeText(this, "Guardado", Toast.LENGTH_SHORT).show()
+                    finish()
                 }else{
                     Toast.makeText(this, "Las contraseñas son diferentes", Toast.LENGTH_LONG).show()
                 }

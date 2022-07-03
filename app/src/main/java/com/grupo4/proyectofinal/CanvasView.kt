@@ -25,8 +25,9 @@ class CanvasView(context: Context, val mainActivity: MainActivity) : View(contex
         style = Paint.Style.FILL
     }
     private val colorRed = ResourcesCompat.getColor(resources, R.color.red, null)
+    private val colorBackground = ResourcesCompat.getColor(resources, R.color.background, null)
     private val paintMargins = Paint().apply {
-        color = colorBlack
+        color = colorBackground
         style = Paint.Style.FILL
     }
     private val paint = Paint().apply {
@@ -161,7 +162,7 @@ class CanvasView(context: Context, val mainActivity: MainActivity) : View(contex
                     start = false
                 }
                 if (firstStart) {
-                    paintMargins.color = colorBlack
+                    paintMargins.color = colorBackground
                     createGameThread()
                     firstStart = false
                 }
@@ -188,13 +189,11 @@ class CanvasView(context: Context, val mainActivity: MainActivity) : View(contex
                     updateAsteroidsPosition(speed)
                     invalidate()
                     currentScore += 0.05f
-//                    mainActivity.runOnUiThread{
-                        mainActivity.currentScoreTextView.text = currentScore.toInt().toString()
-//                    }
                     for (asteroid in asteroids.list) {
                         if (detectAsteroidCollision(spaceship, asteroid)) {
                             start = false
                             gameOver = true
+                            mainActivity.modificarPuntaje(currentScore.toInt())
                             vibrate()
                             paintMargins.color = colorRed
                             invalidate()
