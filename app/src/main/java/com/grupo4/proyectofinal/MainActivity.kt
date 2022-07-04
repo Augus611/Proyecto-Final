@@ -1,6 +1,7 @@
 package com.grupo4.proyectofinal
 
 import android.content.Intent
+import android.graphics.Color
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -53,7 +54,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             params
         )
         val loginButton = ImageButton(this)
-        loginButton.background = AppCompatResources.getDrawable(this, R.drawable.round_button)
+        loginButton.setBackgroundColor(Color.TRANSPARENT)
         loginButton.setImageResource(R.drawable.spaceship)
         loginButton.setOnClickListener{
             startActivityForResult(
@@ -70,7 +71,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             params
         )
         val highscoreButton = ImageButton(this)
-        highscoreButton.background = AppCompatResources.getDrawable(this, R.drawable.round_button)
+        highscoreButton.setImageResource(R.drawable.star)
+        highscoreButton.setBackgroundColor(Color.TRANSPARENT)
         highscoreButton.setOnClickListener{
             startActivity(
                 Intent(this, PuntajesMaximos::class.java).putExtra("Usuario", usuario)
