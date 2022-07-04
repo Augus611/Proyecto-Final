@@ -57,10 +57,17 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         loginButton.setBackgroundColor(Color.TRANSPARENT)
         loginButton.setImageResource(R.drawable.spaceship)
         loginButton.setOnClickListener{
-            startActivityForResult(
-                Intent(this, Activity_Login::class.java),
-                1
-            )
+            if (usuario == null) {
+                startActivityForResult(
+                    Intent(this, Activity_Login::class.java),
+                    1
+                )
+            } else {
+                startActivityForResult(
+                    Intent(this, Perfil::class.java).putExtra("Usuario", usuario),
+                    2
+                )
+            }
         }
         params = RelativeLayout.LayoutParams(100, 100)
         params.addRule(RelativeLayout.LEFT_OF, currentScoreTextView.id)
@@ -180,11 +187,17 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-
-        if (requestCode == 1) {
-            usuario = data?.getStringExtra("Usuario")
-            if (canvasView.gameOver) {
-                modificarPuntaje(canvasView.currentScore.toInt())
+        when (requestCode) {
+            1 -> {
+                usuario = data?.getStringExtra("Usuario")
+                if (canvasView.gameOver) {
+                    modificarPuntaje(canvasView.currentScore.toInt())
+                }
+            }
+            2 -> {
+                if (resultCode == 2){
+                    usuario = null
+                }
             }
         }
     }

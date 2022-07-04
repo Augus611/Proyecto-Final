@@ -64,4 +64,15 @@ class miSqliteHelper(context: Context):SQLiteOpenHelper(context, "usuarios.db", 
         return lista
     }
 
+    fun getPuntuacion(nombre: String): String {
+        val arg = arrayOf(nombre)
+        val db = this.readableDatabase
+        val cursor = db.rawQuery("SELECT puntuacionMaxima FROM usuarios WHERE nombre = ?", arg)
+        return if (cursor.moveToFirst()){
+            cursor.getString(0)
+        } else {
+            "0"
+        }
+    }
+
 }
