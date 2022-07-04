@@ -5,6 +5,7 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.opengl.Visibility
 import android.os.*
 import androidx.appcompat.app.AppCompatActivity
 import android.view.*
@@ -18,6 +19,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private lateinit var sensorManager : SensorManager
     private lateinit var accelerometer : Sensor
     lateinit var currentScoreTextView : TextView
+    lateinit var newHighscoreTextView : TextView
     lateinit var UsuariosDBHelper: miSqliteHelper
     var usuario : String? = null
 
@@ -82,6 +84,24 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             highscoreButton,
             params
         )
+        newHighscoreTextView = TextView(this)
+        newHighscoreTextView.apply {
+            text = "¡Nueva puntuación máxima!"
+            visibility = View.INVISIBLE
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                typeface = resources.getFont(R.font.pressstart_normal)
+            }
+            setTextColor(resources.getColor(R.color.white))
+            gravity = Gravity.CENTER
+            textSize = 16f
+        }
+        params = RelativeLayout.LayoutParams(1000, 180)
+        params.addRule(RelativeLayout.CENTER_HORIZONTAL)
+        params.addRule(RelativeLayout.BELOW, currentScoreTextView.id)
+        params.setMargins(0, 50, 0, 0)
+        relativeLayout.addView(
+            newHighscoreTextView,
+            params)
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         setFullscreen()
         setContentView(relativeLayout)
@@ -177,6 +197,16 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             if(PuntuacionMaxActual.toString().isNotBlank()){
                 if ( Puntuacion > PuntuacionMaxActual ){
                     UsuariosDBHelper.ActualizarDato(usuario!!, score)
+                    val thread = Thread {
+                        runOnUiThread {
+                            newHighscoreTextView.visibility = View.VISIBLE
+                        }
+                        Thread.sleep(3000)
+                        runOnUiThread {
+                            newHighscoreTextView.visibility = View.INVISIBLE
+                        }
+                    }
+                    thread.start()
                 }
             }
         }
